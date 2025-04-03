@@ -1,0 +1,19 @@
+{
+	"compilerOptions": {
+		"lib": ["dom", "dom.iterable", "esnext"],
+		"allowJs": true,
+		"skipLibCheck": true,
+		"strict": true,
+		"esModuleInterop": true,
+		"module": "CommonJS",
+		"outDir": "./build",
+		"moduleResolution": "Node",
+		"resolveJsonModule": true,
+		"isolatedModules": true,
+		"jsx": "preserve",
+		"incremental": true,
+		"downlevelIteration": true
+	},
+	"include": ["**/**/*.ts", "**/**/*.tsx"],
+	"exclude": ["node_modules"]
+}
