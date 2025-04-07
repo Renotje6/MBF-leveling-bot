@@ -22,7 +22,7 @@ declare module 'discord.js' {
 
 // Create the bot instance
 const bot = new Client({
-	intents: [IntentsBitField.Flags.MessageContent, IntentsBitField.Flags.GuildMembers, IntentsBitField.Flags.Guilds],
+	intents: [IntentsBitField.Flags.MessageContent, IntentsBitField.Flags.GuildMembers, IntentsBitField.Flags.Guilds, IntentsBitField.Flags.GuildMessages],
 	partials: [Partials.Message, Partials.GuildMember],
 });
 

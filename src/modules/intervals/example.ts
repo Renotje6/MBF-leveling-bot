@@ -1,7 +1,7 @@
 import type { BotInterval } from '../../types/bot.types';
 
 export default {
-	enabled: true,
+	enabled: false,
 	name: 'example',
 	interval: 10000,
 
