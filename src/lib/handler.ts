@@ -1,17 +1,17 @@
 import { ActivityType, type ApplicationCommandDataResolvable, ApplicationCommandType, Events, InteractionType } from 'discord.js';
-import type { BotCommand, BotComponent, BotContext, BotEvent, BotInterval, BotModal } from '../types/bot.types';
 import { readdir } from 'node:fs/promises';
-import { Logger } from './utils';
 import bot from '../bot';
+import type { BotCommand, BotComponent, BotContext, BotEvent, BotInterval, BotModal } from '../types/bot.types';
+import { Logger } from './utils';
 
 export default async function handler() {
-	// load modules at the same time
-	await Promise.all([loadEvents(), loadCommands(), loadComponents(), loadContexts(), loadModals(), loadIntervals()]);
-	// login to the bot client
 	await bot.login(bot.config.bot_token).catch((err) => {
 		Logger({ level: 'ERROR', module: 'HANDLER', message: err.message });
 		process.exit(1);
 	});
+	// load modules at the same time
+	await Promise.all([loadEvents(), loadCommands(), loadComponents(), loadContexts(), loadModals(), loadIntervals()]);
+	// login to the bot client
 	// on bot ready
 	bot.once(Events.ClientReady, async () => {
 		Logger({ level: 'SUCCESS', message: `Bot logged in as ${bot.user?.username}` });
@@ -88,6 +88,7 @@ const loadEvents = async () => {
 
 const loadCommands = async () => {
 	const commandFiles = await readdir('./src/modules/commands');
+	const guild = bot.guilds.cache.get(bot.config.guild_id);
 	// loop through all the files in the commands folder
 	for (const file of commandFiles) {
 		// require the command file
@@ -96,6 +97,10 @@ const loadCommands = async () => {
 		if (!command || !command.enabled) continue;
 		// add the command to the client
 		bot.commands.set(command.name, command);
+		// if the command is a slash command, add it to the guild
+		await guild?.commands.create(command as ApplicationCommandDataResolvable).catch((err) => {
+			Logger({ level: 'ERROR', module: 'HANDLER', message: `Failed to register command ${command.name}: ${err.message}` });
+		});
 	}
 	// log the number of commands loaded
 	if (bot.commands.size) Logger({ level: 'HANDLER', message: `Loaded ${bot.commands.size} command(s)` });

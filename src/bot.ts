@@ -1,10 +1,10 @@
-import type { BotCommand, BotComponent, BotContext, BotEvent, BotInterval, BotModal } from './types/bot.types';
 import { Client, Collection, IntentsBitField, Partials } from 'discord.js';
-import { ParseConfiguration, type BotConfig } from './schemas/config';
-import InitDatabase from './lib/database';
-import config from '../config.json';
-import handler from './lib/handler';
 import type { Knex } from 'knex';
+import config from '../config.json';
+import InitDatabase from './lib/database';
+import handler from './lib/handler';
+import { type BotConfig, ParseConfiguration } from './schemas/config';
+import type { BotCommand, BotComponent, BotContext, BotEvent, BotInterval, BotModal } from './types/bot.types';
 
 declare module 'discord.js' {
 	export interface Client {
@@ -17,6 +17,7 @@ declare module 'discord.js' {
 		modals: Collection<string, BotModal>;
 		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 		db: Knex<any, unknown[]>;
+		cooldowns: Map<string, number>;
 	}
 }
 
@@ -44,6 +45,7 @@ const bot = new Client({
 	bot.modals = new Collection();
 	bot.intervals = new Collection();
 	bot.db = database;
+	bot.cooldowns = new Map<string, number>();
 
 	// Load handler
 	handler();

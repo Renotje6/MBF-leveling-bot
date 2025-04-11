@@ -18,6 +18,9 @@
 			"complexity": {},
 			"correctness": {
 				"noUnusedImports": "warn"
+			},
+			"style": {
+				"noNonNullAssertion": "warn"
 			}
 		}
 	},

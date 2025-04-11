@@ -1,7 +1,7 @@
 import type { BotCommand } from '../../types/bot.types';
 
 export default {
-	enabled: true,
+	enabled: false,
 	name: 'ping',
 	description: 'Returns the bots ping',
 	options: [],

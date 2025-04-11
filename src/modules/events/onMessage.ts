@@ -1,28 +1,66 @@
-import {type Client, Events, Message} from 'discord.js';
+import { ChannelType, Events, type Message } from 'discord.js';
+import bot from '../../bot';
+import { getRequiredXP } from '../../lib/leveling/utils';
 import type { BotEvent } from '../../types/bot.types';
-import bot from "../../bot";
+import type { User } from '../../types/user';
 
 export default {
-    enabled: true,
-    name: 'give_xp',
-    type: Events.MessageCreate,
-    once: true,
+	enabled: true,
+	name: 'give_xp',
+	type: Events.MessageCreate,
+	once: false,
 
-    run: async (message: Message) => {
-        console.log("hello");
-        console.log(message);
+	run: async (message: Message) => {
+		if (message.author.bot) return;
 
-        let user = await bot.db.select("users").where("users.id", message.author.id);
-        if (!user) {
-            await bot.db.insert({
-                id: message.author.id,
-                xp: 0,
-                level: 0
-            })
+		const userId = message.author.id;
 
-            user = await bot.db.select("users").where("users.id", message.author.id);
-        }
+		// Check database for user
+		let user = await bot.db<User>('users').select().where('id', message.author.id).first();
+		if (!user) {
+			console.log('User not found in database, inserting...');
+			await bot.db('users').insert({
+				id: `${message.author.id}`,
+				xp: 0,
+				level: 0,
+			});
 
-        console.log(user)
-    },
+			user = (await bot.db('users').select().where('id', message.author.id).first()) as User;
+		}
+
+		// Check cooldowns
+		const lastUsed = bot.cooldowns.get(userId);
+
+		if (lastUsed && Date.now() - lastUsed < 60 * 1000) {
+			console.log(`User ${userId} is on cooldown.`);
+			return;
+		} // 1 minute cooldown
+
+		bot.cooldowns.set(userId, Date.now());
+
+		//Give XP
+		const xpToAdd = Math.floor(Math.random() * 20) + 5; // Random XP between 1 and 10
+		const xpNeeded = getRequiredXP(user.level + 1); // XP needed for next level
+
+		console.log(user.xp, xpToAdd, xpNeeded);
+		if (user.xp + xpToAdd >= xpNeeded) {
+			await bot
+				.db('users')
+				.update({ xp: 0, level: user.level + 1 })
+				.where('id', userId);
+
+			const channel = await bot.channels.fetch(bot.config.level_up_channel_id);
+
+			if (channel?.type === ChannelType.GuildText) {
+				channel.send({
+					content: bot.config.level_up_message?.replacer({ user: `<@${userId}>`, level: user.level + 1 }) ?? `Congratulations <@${userId}>! You leveled up to level ${user.level + 1}!`,
+				});
+			}
+		} else {
+			await bot
+				.db('users')
+				.update({ xp: user.xp + xpToAdd })
+				.where('id', userId);
+		}
+	},
 } satisfies BotEvent;

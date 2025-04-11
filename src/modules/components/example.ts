@@ -1,7 +1,7 @@
 import type { BotComponent } from '../../types/bot.types';
 
 export default {
-	enabled: true,
+	enabled: false,
 	customId: 'example_component',
 
 	run: async (client, interaction, options) => {

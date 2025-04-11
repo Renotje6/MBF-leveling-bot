@@ -2,7 +2,7 @@ import { type Client, Events } from 'discord.js';
 import type { BotEvent } from '../../types/bot.types';
 
 export default {
-	enabled: true,
+	enabled: false,
 	name: 'example',
 	type: Events.ClientReady,
 	once: true,

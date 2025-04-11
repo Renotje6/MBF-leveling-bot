@@ -13,11 +13,11 @@ const InitDatabase = async () => {
 
 		Logger({ level: 'SUCCESS', module: 'DATABASE', message: 'Database initialized' });
 
-		db.schema.createTable("users", (table) => {
-			table.string("name");
-			table.integer("level");
-			table.integer("xp");
-		})
+		await db.schema.createTableIfNotExists('users', (table) => {
+			table.string('id');
+			table.integer('level');
+			table.integer('xp');
+		});
 
 		return db;
 	} catch (error) {

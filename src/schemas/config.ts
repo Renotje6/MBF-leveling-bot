@@ -1,9 +1,11 @@
-import { Logger } from '../lib/utils';
 import { z } from 'zod';
+import { Logger } from '../lib/utils';
 
 export const configurationSchema = z.object({
 	bot_token: z.string().min(50, 'Bot token must be at least 50 characters long'),
 	guild_id: z.string().min(18, 'Guild ID must be at least 18 characters long'),
+	level_up_channel_id: z.string().min(18, 'Level up channel ID must be at least 18 characters long'),
+	level_up_message: z.string().optional(),
 	bot_presence: z.object({
 		username: z.optional(z.string()),
 		status: z.optional(z.enum(['dnd', 'idle', 'invisible', 'online'])),
