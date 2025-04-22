@@ -6,6 +6,8 @@ export const configurationSchema = z.object({
 	guild_id: z.string().min(18, 'Guild ID must be at least 18 characters long'),
 	level_up_channel_id: z.string().min(18, 'Level up channel ID must be at least 18 characters long'),
 	level_up_message: z.string().optional(),
+	top_role_id: z.string().min(18, 'Level up channel ID must be at least 18 characters long'),
+	number_of_top: z.number().min(1).max(50).optional(),
 	bot_presence: z.object({
 		username: z.optional(z.string()),
 		status: z.optional(z.enum(['dnd', 'idle', 'invisible', 'online'])),

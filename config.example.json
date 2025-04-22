@@ -1,6 +1,10 @@
 {
 	"bot_token": "",
 	"guild_id": "",
+	"level_up_channel_id": "",
+	"level_up_message": "",
+	"top_role_id": "",
+	"number_of_top": "",
 	"bot_presence": {
 		"username": "",
 		"status": "dnd",

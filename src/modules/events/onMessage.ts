@@ -3,6 +3,7 @@ import bot from '../../bot';
 import { getRequiredXP } from '../../lib/leveling/utils';
 import type { BotEvent } from '../../types/bot.types';
 import type { User } from '../../types/user';
+import {syncRole} from "../../lib/leveling/assignTopRoles";
 
 export default {
 	enabled: true,
@@ -42,7 +43,6 @@ export default {
 		const xpToAdd = Math.floor(Math.random() * 20) + 5; // Random XP between 1 and 10
 		const xpNeeded = getRequiredXP(user.level + 1); // XP needed for next level
 
-		console.log(user.xp, xpToAdd, xpNeeded);
 		if (user.xp + xpToAdd >= xpNeeded) {
 			await bot
 				.db('users')
@@ -51,10 +51,16 @@ export default {
 
 			const channel = await bot.channels.fetch(bot.config.level_up_channel_id);
 
+			await syncRole()
+
 			if (channel?.type === ChannelType.GuildText) {
-				channel.send({
+				return channel.send({
 					content: bot.config.level_up_message?.replacer({ user: `<@${userId}>`, level: user.level + 1 }) ?? `Congratulations <@${userId}>! You leveled up to level ${user.level + 1}!`,
 				});
+			} else {
+				return message.channel.isSendable() ? message.channel.send({
+					content: ""
+				}) : bot.config.level_up_message?.replacer({ user: `<@${userId}>`, level: user.level + 1 }) ?? `Congratulations <@${userId}>! You leveled up to level ${user.level + 1}!`;
 			}
 		} else {
 			await bot
