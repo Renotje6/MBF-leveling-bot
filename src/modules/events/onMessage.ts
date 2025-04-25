@@ -40,7 +40,7 @@ export default {
 		bot.cooldowns.set(userId, Date.now());
 
 		//Give XP
-		const xpToAdd = Math.floor(Math.random() * 20) + 5; // Random XP between 1 and 10
+		const xpToAdd = Math.floor(Math.random() * 31) + 10;
 		const xpNeeded = getRequiredXP(user.level + 1); // XP needed for next level
 
 		if (user.xp + xpToAdd >= xpNeeded) {
