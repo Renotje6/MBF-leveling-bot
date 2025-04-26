@@ -29,7 +29,16 @@ export default {
 		}
 
 		const member = await interaction.guild?.members.fetch(userId).catch(() => null);
-		const rank = await client.db('users').count('* as rank').where('xp', '>', user.xp).first();
+		const rank = await client.db('users')
+  .count('* as rank')
+  .where(function() {
+    this.where('level', '>', user.level)
+      .orWhere(function() {
+        this.where('level', '=', user.level).andWhere('xp', '>', user.xp);
+      });
+  })
+  .first();
+
 
 		if (!member) {
 			await interaction.editReply({
