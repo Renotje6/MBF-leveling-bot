@@ -23,12 +23,11 @@ export default {
 
         try {
             const result = safeCalculate(expression)
-            const formattedResult = Number.isInteger(result) ?
-                result.toString() :
-                result.toFixed(4).replace(/\.?0+$/, '');
+            const formattedResult = formatWithSuffix(result);
+
             return interaction.editReply({
-                content: `${expression.replace(/\*/g, '\\*')} = ${formattedResult}`
-            })
+                content: `${expression.replace(/\*/g, '\\*')} = ${formattedResult} \`(${result})\``
+            });
         } catch (e: unknown) {
             if (e instanceof Error)
             return interaction.editReply({
@@ -57,7 +56,19 @@ function hasBalancedParentheses(expr: string): boolean {
 
 function safeCalculate(expr: string): number {
     // Remove all whitespace from the expression
-    const cleanedExpr = expr.replace(/\s+/g, '');
+    let cleanedExpr = expr.replace(/\s+/g, '');
+
+    // Convert suffixed numbers (e.g. 2.4k, 3m, 1.2b) to actual numbers
+    cleanedExpr = cleanedExpr.replace(/(\d+(\.\d+)?)([kmb])/gi, (_a, numStr, _b, suffix) => {
+        const num = parseFloat(numStr);
+        // @ts-ignore
+        const multiplier = {
+            k: 1e3,
+            m: 1e6,
+            b: 1e9
+        }[suffix.toLowerCase()];
+        return (num * multiplier).toString();
+    });
 
     // Validate allowed characters
     if (!/^[\d+\-*/().]+$/.test(cleanedExpr)) {
@@ -80,4 +91,15 @@ function safeCalculate(expr: string): number {
     } catch (error) {
         throw new Error("Invalid mathematical expression");
     }
+}
+
+function formatWithSuffix(num: number): string {
+    const absNum = Math.abs(num);
+    const formatter = (val: number, suffix: string) =>
+        `${(val).toFixed(2).replace(/\.?0+$/, '')}${suffix}`;
+
+    if (absNum >= 1e9) return formatter(num / 1e9, 'b');
+    if (absNum >= 1e6) return formatter(num / 1e6, 'm');
+    if (absNum >= 1e3) return formatter(num / 1e3, 'k');
+    return num.toString();
 }
